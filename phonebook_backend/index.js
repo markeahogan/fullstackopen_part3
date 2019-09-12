@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 
 let persons = [
     {
@@ -23,6 +24,15 @@ let persons = [
         id: 4
     }
 ]
+
+app.use(bodyParser.json());
+
+app.post('/api/persons', (req, res) => {
+    const person = req.body;
+    person.id = Math.floor(Math.random()*1000);
+    persons = persons.concat(person);
+    res.json(person);
+});
 
 app.get('/api/persons', (req, res) => {
     res.json(persons);

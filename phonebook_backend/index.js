@@ -35,7 +35,13 @@ app.get('/api/persons/:id', (req, res) =>{
     }else{
         res.status(404).end();
     }
-})
+});
+
+app.delete('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id);
+    persons = persons.filter(x => x.id != id);
+    res.status(204).end();
+});
 
 app.get('/info', (req, res) => {
     res.send(`

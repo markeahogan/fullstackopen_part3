@@ -29,6 +29,21 @@ app.use(bodyParser.json());
 
 app.post('/api/persons', (req, res) => {
     const person = req.body;
+
+    let error = '';
+    if (!person.name){
+        error = 'name missing';
+    }else if(!person.number){
+        error = 'number missing';
+    }else if (persons.find(x=>x.name==person.name)){
+        error = 'person already exists';
+    }
+
+    if (error){
+        res.status(400).json({error});
+        return;
+    }
+
     person.id = Math.floor(Math.random()*1000);
     persons = persons.concat(person);
     res.json(person);

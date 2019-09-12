@@ -26,8 +26,10 @@ let persons = [
     }
 ]
 
+morgan.token('post', (req)=> req.method=='POST' && JSON.stringify(req.body));
+
 app.use(bodyParser.json());
-app.use(morgan('tiny'));
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'));
 
 app.post('/api/persons', (req, res) => {
     const person = req.body;

@@ -1,1 +1,0 @@
-web: node fullstackopen_part3/index.js

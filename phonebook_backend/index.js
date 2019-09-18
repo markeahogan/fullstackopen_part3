@@ -1,8 +1,9 @@
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
-const morgan = require('morgan');
-const cors = require('cors');
+const bodyParser = require('body-parser'); //fills the body of response with a js object
+const morgan = require('morgan'); //provides logging
+const cors = require('cors'); //enables cross domain
+const Person = require('./models/person');
 
 let persons = [
     {
@@ -35,14 +36,14 @@ app.use(bodyParser.json());
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'));
 
 app.post('/api/persons', (req, res) => {
-    const person = req.body;
+    const personData = req.body;
 
     let error = '';
-    if (!person.name){
+    if (!personData.name){
         error = 'name missing';
-    }else if(!person.number){
+    }else if(!personData.number){
         error = 'number missing';
-    }else if (persons.find(x=>x.name==person.name)){
+    }else if (persons.find(x=>x.name==personData.name)){
         error = 'person already exists';
     }
 
@@ -51,25 +52,34 @@ app.post('/api/persons', (req, res) => {
         return;
     }
 
-    person.id = Math.floor(Math.random()*1000);
-    persons = persons.concat(person);
-    res.json(person);
+    const person = new Person(personData);
+    person.save().then((result) => {
+        res.json(result);
+    });
 });
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons);
+    Person.find({}).then(result => {
+        res.json(result);
+    });
 });
 
 app.get('/api/persons/:id', (req, res) =>{
-    const person = persons.find(x => x.id == req.params.id);
-    if (person){
-        res.json(person);
-    }else{
-        res.status(404).end();
-    }
+    Person.findById(req.params.id)
+        .then(result => {
+            if (result){
+                res.json(result);
+            }else{
+                res.status(404).end();
+            }
+        })
+        .catch(e => {
+            res.status(400).end();
+        });
 });
 
 app.delete('/api/persons/:id', (req, res) => {
+    Person.findByIdAndRemove(req.params.id);
     const id = Number(req.params.id);
     persons = persons.filter(x => x.id != id);
     res.status(204).end();

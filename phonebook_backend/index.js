@@ -22,9 +22,7 @@ app.post('/api/persons', (req, res) => {
         error = 'name missing';
     }else if(!personData.number){
         error = 'number missing';
-    }/*else if (persons.find(x=>x.name==personData.name)){
-        error = 'person already exists';
-    }*/
+    }
 
     if (error){
         res.status(400).json({error});
@@ -37,6 +35,20 @@ app.post('/api/persons', (req, res) => {
         .then((result) => {
             res.json(result.toJSON());
         });
+});
+
+app.put('/api/persons/:id', (req, res, next) => {
+    const data = {
+        name:req.body.name,
+        number:req.body.number
+    };
+    const id = req.params.id;
+
+    Person.findByIdAndUpdate(id, data, {new:true})
+        .then(updatedPerson => {
+            res.json(updatedPerson.toJSON());
+        })
+        .catch(e => next(e));
 });
     
 app.get('/api/persons', (req, res) => {

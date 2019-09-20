@@ -34,19 +34,24 @@ const App = () => {
   const addOrUpdate = (newPerson) => {
     const personExistsAlready = persons.find(x => x.name === newPerson.name);
 
+    let action;
     if (!personExistsAlready){
-      personService.add(newPerson)
+      action = personService.add(newPerson)
         .then(x => {
           setPersons(persons.concat(x))
           notifySuccess(`Added ${newPerson.name}`);
         });
     }else{
-      personService.update(personExistsAlready.id, newPerson)
+      action = personService.update(personExistsAlready.id, newPerson)
         .then(person => {
           setPersons(persons.map(x => x.id === person.id ? person : x))
           notifySuccess(`Updated ${newPerson.name}`);
         });
     }
+    action.catch(e => {
+      console.log(e.response.data);
+      notifyError(e.response.data);
+    });
   }
   
   const remove = (id) => {

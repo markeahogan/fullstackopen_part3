@@ -14,27 +14,15 @@ app.use(express.static('build'));
 app.use(bodyParser.json());
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'));
 
-app.post('/api/persons', (req, res) => {
-    const personData = req.body;
+app.post('/api/persons', (req, res, next) => {
 
-    let error = '';
-    if (!personData.name){
-        error = 'name missing';
-    }else if(!personData.number){
-        error = 'number missing';
-    }
-
-    if (error){
-        res.status(400).json({error});
-        return;
-    }
-
-    const person = new Person(personData);
+    const person = new Person(req.body);
 
     person.save()
         .then((result) => {
             res.json(result.toJSON());
-        });
+        })
+        .catch(e => next(e));
 });
 
 app.put('/api/persons/:id', (req, res, next) => {
